@@ -1,7 +1,9 @@
 package dbfacades;
 
-import dbfacades.DemoFacade;
-import entity.Car;
+import entity.Customer;
+import entity.ItemType;
+import entity.OrderEntity;
+import entity.OrderLine;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -33,13 +35,49 @@ public class FacadeTest {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            //Delete all, since some future test cases might add/change data
-            em.createNativeQuery("TRUNCATE TABLE car").executeUpdate();
-            //Add our test data
-            Car e1 = new Car("Volve");
-            Car e2 = new Car("WW");
-            em.persist(e1);
-            em.persist(e2);
+            //First we add 3 ItemTypes
+            ItemType item1 = new ItemType("Spider-Man Comicbook", "A great comicbook for kids", 100.00);
+            ItemType item2 = new ItemType("Pliers", "A tool for bending things back in place", 50.00);
+            ItemType item3 = new ItemType("Asus Laptop", "Do you want to work and play games on the same laptop? Then this is the laptop for you", 10000.00);
+            //First customer will have one order with one orderline keeping it a little simpler
+            Customer c1 = new Customer("Simon", "simon@hotmail.com");
+            Customer c2 = new Customer("Benjamin", "benjamin123@live.dk");
+            //order and orderline setup for customer 1
+            OrderLine ol1 = new OrderLine(10);
+            ol1.setItem(item1);
+            OrderEntity o1 = new OrderEntity(1);
+            o1.addOrderline(ol1);
+            c1.addOrder(o1);
+
+            //Order and orderline setup for customer 2 this time made with arrays just for fun
+            OrderLine ol2 = new OrderLine(3);
+            OrderLine ol3 = new OrderLine(5);
+            ol2.setItem(item2);
+            ol3.setItem(item3);
+            OrderEntity o2 = new OrderEntity(2);
+            o2.addOrderlines(ol2, ol3);
+
+            OrderLine ol4 = new OrderLine(12);
+            ol4.setItem(item3);
+            OrderEntity o3 = new OrderEntity(3);
+            o2.addOrderline(ol4);
+            c2.addOrders(o2, o3);
+            //Lastly before persisting well add all the orderlines to their linked item for both customer1 and 2
+            item1.addOrderline(ol1);
+            item2.addOrderline(ol2);
+            item3.addOrderlines(ol3, ol4);
+            em.persist(item1);
+            em.persist(item2);
+            em.persist(item3);
+            em.persist(c1);
+            em.persist(c2);
+            em.persist(ol1);
+            em.persist(o1);
+            em.persist(ol2);
+            em.persist(ol3);
+            em.persist(o2);
+            em.persist(ol4);
+            em.persist(o3);
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -48,44 +86,15 @@ public class FacadeTest {
 
     // Test the single method in the Facade
     @Test
-    public void countEntities() {
-        long count = facade.countCars();
-        Assert.assertEquals(2, count);
-    }
-
-    @Test
-    public void getCarByMake() {
-        Car c = facade.getCarByMake("WW");
-        Assert.assertEquals("WW", c.getMake());
-    }
-    
-    @Test
-    public void getCarById() {
-        Car c = facade.getCarById( 2);
-        Assert.assertEquals(2, (int) c.getId());
-    }
-    
-    @Test
-    public void deleteCarById() {
-        facade.deleteCarById(1);
-        Car cc = facade.getCarById(1);
-        Assert.assertNull(cc);
-    }
-
-    @Test
-    public void getAllCars() {
+    public void createCustomer() {
         EntityManager em = emf.createEntityManager();
         try {
-            List<Car> expectedCars = facade.getAllCars();
-            Assert.assertEquals(2, expectedCars.size());
+            Customer cust = new Customer("hans", "hans@hansen.dk");
+            Customer c = facade.createCustomer(cust);
+            em.find(Customer.class, c.getId());
+            Assert.assertEquals(c, cust);
         } finally {
             em.close();
         }
     }
-//    @Test
-//    public void failtest(){
-//        Assert.assertTrue(false);
-//    }
-//    
-    
 }

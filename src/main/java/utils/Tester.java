@@ -1,22 +1,20 @@
 package utils;
 
 import dbfacades.DemoFacade;
-import entity.Car;
-import javax.persistence.EntityManager;
+import entity.Customer;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 public class Tester {
 
     public static void main(String[] args) {
-//        System.out.println("Building the Table(s)");
-//        Persistence.generateSchema("pu", null);
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
+       EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
         
         DemoFacade df = new DemoFacade(emf);
-        
-        Car c = df.getCarById(1);
-        System.out.println(c.getId());
+        Customer cust = new Customer("børge", "børge@børgesen.dk");
+        Customer c = df.createCustomer(cust);
+        System.out.println(c.getId() + " " + c.getName());
     }
 
 }
