@@ -62,4 +62,9 @@ public class OrderEntity implements Serializable {
         this.id = id;
     }
 
+    @Override
+    public String toString() {
+        return "OrderEntity{" + "id=" + id + ", orderID=" + orderID + ", orderlines=" + orderlines + '}';
+    }
+    
 }

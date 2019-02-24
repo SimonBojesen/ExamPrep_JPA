@@ -90,9 +90,39 @@ public class FacadeTest {
         EntityManager em = emf.createEntityManager();
         try {
             Customer cust = new Customer("hans", "hans@hansen.dk");
-            Customer c = facade.createCustomer(cust);
-            em.find(Customer.class, c.getId());
-            Assert.assertEquals(c, cust);
+            Customer expected = facade.createCustomer(cust);
+            Customer result = em.find(Customer.class, expected.getId());
+            Assert.assertEquals(expected.getName(), result.getName());
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    public void findCustomerById() {
+        Customer c = facade.findCustomerById(1);
+        Assert.assertEquals(1, (int) c.getId());
+    }
+    
+    @Test
+    public void getAllCustomers() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<Customer> expected = facade.getAllCustomer();
+            Assert.assertEquals(2, expected.size());
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    public void createOrder() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            OrderEntity order = new OrderEntity();
+            OrderEntity expected = facade.createOrder(order);
+            OrderEntity result = em.find(OrderEntity.class, expected.getId());
+            Assert.assertEquals(expected.toString(), result.toString());
         } finally {
             em.close();
         }

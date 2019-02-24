@@ -7,6 +7,8 @@
 package dbfacades;
 
 import entity.Customer;
+import entity.OrderEntity;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
@@ -32,4 +34,38 @@ public class DemoFacade {
             em.close();
         }
     }
+    
+    public Customer findCustomerById(int id) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Customer c = em.find(Customer.class, id);
+            em.getTransaction().commit();
+            return c;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Customer> getAllCustomer() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return (List<Customer>) em.createQuery("select c from Customer c").getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    OrderEntity createOrder(OrderEntity order) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.persist(order);
+            em.getTransaction().commit();
+            return order;
+        } finally {
+            em.close();
+        }
+    }
+
 }
