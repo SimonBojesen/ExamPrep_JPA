@@ -27,6 +27,7 @@ public class FacadeTest {
 
     DemoFacade facade = new DemoFacade(emf);
 
+    
     /**
      * Setup test data in the database to a known state BEFORE Each test
      */
@@ -89,8 +90,8 @@ public class FacadeTest {
     public void createCustomer() {
         EntityManager em = emf.createEntityManager();
         try {
-            Customer cust = new Customer("hans", "hans@hansen.dk");
-            Customer expected = facade.createCustomer(cust);
+            Customer expected = new Customer("hans", "hans@hansen.dk");
+            facade.createCustomer(expected);
             Customer result = em.find(Customer.class, expected.getId());
             Assert.assertEquals(expected.getName(), result.getName());
         } finally {
@@ -104,16 +105,16 @@ public class FacadeTest {
         Assert.assertEquals(1, (int) c.getId());
     }
     
-    @Test
-    public void getAllCustomers() {
-        EntityManager em = emf.createEntityManager();
-        try {
-            List<Customer> expected = facade.getAllCustomer();
-            Assert.assertEquals(2, expected.size());
-        } finally {
-            em.close();
-        }
-    }
+//    @Test
+//    public void getAllCustomers() {
+//        EntityManager em = emf.createEntityManager();
+//        try {
+//            List<Customer> expected = facade.getAllCustomer();
+//            Assert.assertEquals(2, expected.size());
+//        } finally {
+//            em.close();
+//        }
+//    }
 
     @Test
     public void createOrder() {
@@ -122,9 +123,69 @@ public class FacadeTest {
             OrderEntity order = new OrderEntity();
             OrderEntity expected = facade.createOrder(order);
             OrderEntity result = em.find(OrderEntity.class, expected.getId());
-            Assert.assertEquals(expected.toString(), result.toString());
+            Assert.assertEquals(expected.getId(), result.getId());
         } finally {
             em.close();
         }
     }
+    
+    @Test
+    public void addOrderToCustomer() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            boolean b = false;
+            OrderEntity order = em.find(OrderEntity.class, 1);
+            Customer cust = em.find(Customer.class, 2);
+            facade.addOrderToCustomer(order, cust);
+            List<OrderEntity> orders = cust.getOrders();
+            for (OrderEntity o : orders) {
+                if (o.getId().intValue() == order.getId().intValue()) {
+                    b = true;
+                }
+            }
+            Assert.assertTrue(b);
+        } finally {
+            em.close();
+        }
+    }
+    
+    @Test
+    public void findOrderById() {
+        OrderEntity o = facade.findOrderById(1);
+        Assert.assertEquals(1, (int) o.getId());
+    }
+    
+    @Test
+    public void getAllOrderFromCustomer() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            Customer c = em.find(Customer.class, 1);
+            List<OrderEntity> expected = facade.getAllOrderFromCustomer(c);
+            Assert.assertEquals(1, expected.size());
+        } finally {
+            em.close();
+        }
+    }
+    
+    @Test
+    public void createOrderLineAndAddToOrder() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            boolean b = false; 
+            OrderLine ol = new OrderLine(10);
+            OrderEntity order = em.find(OrderEntity.class, 1);
+            facade.createOrderLineAndAddToOrder(ol, order);
+            List<OrderLine> olListed = order.getOrderlines();
+            for (OrderLine orderline : olListed) {
+                if (orderline.getId().intValue() == ol.getId().intValue()) {
+                    b = true;
+                }
+            }
+            Assert.assertTrue(b);
+        } finally {
+            em.close();
+        }
+    }
+    
+    
 }

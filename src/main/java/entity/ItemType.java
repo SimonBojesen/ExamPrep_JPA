@@ -33,7 +33,7 @@ public class ItemType implements Serializable {
     private String description;
     private double price;
     @JoinColumn(name="FK_itemtype")
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.ALL})
     private List<OrderLine> orderlines = new ArrayList();
 
     public ItemType() {

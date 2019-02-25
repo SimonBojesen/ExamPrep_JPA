@@ -8,9 +8,11 @@ package dbfacades;
 
 import entity.Customer;
 import entity.OrderEntity;
+import entity.OrderLine;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 
 /**
  *
@@ -23,13 +25,12 @@ public class DemoFacade {
         this.emf = emf;
     }
     
-    public Customer createCustomer(Customer cust) {
+    public void createCustomer(Customer cust) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(cust);
             em.getTransaction().commit();
-            return cust;
         } finally {
             em.close();
         }
@@ -56,13 +57,62 @@ public class DemoFacade {
         }
     }
 
-    OrderEntity createOrder(OrderEntity order) {
+    public OrderEntity createOrder(OrderEntity order) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(order);
             em.getTransaction().commit();
             return order;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void addOrderToCustomer(OrderEntity order, Customer cust) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            cust.addOrder(order);
+            em.merge(cust);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+    }
+
+    OrderEntity findOrderById(int id) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            OrderEntity order = em.find(OrderEntity.class, id);
+            em.getTransaction().commit();
+            return order;
+        } finally {
+            em.close();
+        }
+    }
+
+    List<OrderEntity> getAllOrderFromCustomer(Customer c) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            List<OrderEntity> orders = c.getOrders();
+            em.getTransaction().commit();
+            return orders;
+        } finally {
+            em.close();
+        }
+    }
+
+    void createOrderLineAndAddToOrder(OrderLine ol, OrderEntity order) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.persist(ol);
+            order.addOrderline(ol);
+            em.merge(order);
+            em.getTransaction().commit();
         } finally {
             em.close();
         }
